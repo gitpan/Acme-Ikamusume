@@ -2,7 +2,7 @@ package Acme::Ikamusume;
 use 5.008001;
 use strict;
 use warnings;
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 use Carp;
 use Class::Trigger;
 use File::ShareDir;
@@ -73,7 +73,7 @@ Acme::Ikamusume module converts text to Ikamusume like talk.
 Ikamusume, meaning "Squid-Girl", she is a cute Japanese comic/manga
 character (L<http://www.ika-musume.com/>).
 
-Try this module here: L<http://ika.koneta.org/>. enjoi!
+Try this module here: L<http://ika.koneta.org/>. enjoy!
 
 =head1 METHODS
 

@@ -33,4 +33,4 @@ resources:
   bugtracker: http://github.com/tomi-ru/Acme-Ikamusume/issues
   license: http://dev.perl.org/licenses/
   repository: http://github.com/tomi-ru/Acme-Ikamusume
-version: 0.02
+version: 0.03
