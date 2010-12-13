@@ -2,7 +2,7 @@ package Acme::Ikamusume;
 use 5.008001;
 use strict;
 use warnings;
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 use Carp;
 use Class::Trigger;
 use File::ShareDir;
@@ -39,7 +39,7 @@ sub geso {
             $node = $node->next
         ) {
             next if $node->stat =~ /[23]/; # skip MECAB_(BOS|EOS)_NODE
-            push @words, $node->surface;
+            push @words, $node->surface || "";
             $self->call_trigger('node' => ($node, \@words));
             $self->call_trigger('node.has_extra' => ($node, \@words)) if $node->features->{extra};
             $self->call_trigger('node.readable'  => ($node, \@words)) if $node->features->{yomi};

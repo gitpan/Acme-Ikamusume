@@ -37,11 +37,14 @@ __DATA__
 --- input:    海からの使者、イカ娘でゲソ
 --- expected: 海からの使者、イカ娘でゲソ
 === IKA: replace
---- input:    西瓜が一つ
---- expected: すイカが一つ
+--- input:    西瓜でゲソ
+--- expected: すイカでゲソ
 === IKA: replace
---- input:    ハイカラな
---- expected: はイカらな
+--- input:    いかんでゲソ
+--- expected: イカんでゲソ
+=== IKA: replace
+--- input:    ハイカラでゲソ
+--- expected: ハイカラでゲソ
 === IKA: replace
 --- input:    侵略しないか。
 --- expected: 侵略しなイカ。
@@ -73,21 +76,75 @@ __DATA__
 --- expected: イカ娘じゃなイカ？
 
 
-=== GESO: userdic
+=== IKA/GESO DA = GESO
 --- input:    イカ娘だ
 --- expected: イカ娘でゲソ
-=== GESO: userdic
+=== IKA/GESO DA = GESO
 --- input:    イカ娘だから
 --- expected: イカ娘でゲソから
-=== GESO: userdic
+=== IKA/GESO DA = GESO
 --- input:    イカ娘だが、
 --- expected: イカ娘でゲソが、
-=== IKA: userdic
+=== IKA/GESO DA + ゼ終助詞 = IKA
+--- reported: http://twitter.com/k_e_i_65/status/13634663557898240
+--- input:    イカ娘だぜ
+--- expected: イカ娘じゃなイカ
+=== IKA/GESO DA + ゼ終助詞 = IKA
+--- input:    イカ娘だぜよ
+--- expected: イカ娘じゃなイカ
+=== IKA/GESO DA + ゾ終助詞 = GESO
+--- input:    イカ娘だぞ
+--- expected: イカ娘でゲソ
+=== IKA/GESO DA + ゾ終助詞 = GESO
+--- input:    イカ娘だぞ
+--- expected: イカ娘でゲソ
+=== IKA/GESO DA + ゾ終助詞 = GESO
+--- input:    イカ娘だぞい
+--- expected: イカ娘でゲソ
+=== IKA/GESO DA + ゾ終助詞 = GESO
+--- input:    イカ娘だぞよ
+--- expected: イカ娘でゲソ
+=== IKA/GESO DA + ナ終助詞 = IKA
+--- input:    イカ娘だな
+--- expected: イカ娘じゃなイカ
+=== IKA/GESO DA + ナ終助詞 = IKA
+--- input:    イカ娘だなあ
+--- expected: イカ娘じゃなイカ
+=== IKA/GESO DA + ナ終助詞 = IKA
+--- input:    イカ娘だなぁ
+--- expected: イカ娘じゃなイカ
+=== IKA/GESO DA + ナ終助詞 = IKA
 --- input:    イカ娘だね
 --- expected: イカ娘じゃなイカ
-=== IKA: userdic
+=== IKA/GESO DA + ナ終助詞 = IKA
+--- input:    イカ娘だねえ
+--- expected: イカ娘じゃなイカ
+=== IKA/GESO DA + ナ終助詞 = IKA
+--- input:    イカ娘だねぇ
+--- expected: イカ娘じゃなイカ
+=== IKA/GESO DA + ナ終助詞 = IKA
+--- input:    イカ娘だのう
+--- expected: イカ娘じゃなイカ
+=== IKA/GESO DA + ヨ終助詞 = IKA
+--- input:    イカ娘だよ
+--- expected: イカ娘じゃなイカ
+=== IKA/GESO DA + ヨ終助詞 = IKA
+--- input:    イカ娘だよな
+--- expected: イカ娘じゃなイカ
+=== IKA/GESO DA + ヨ終助詞 = IKA
 --- input:    イカ娘だよね
 --- expected: イカ娘じゃなイカ
+=== IKA/GESO DA + ワ終助詞 = IKA
+--- input:    イカ娘だわ
+--- expected: イカ娘じゃなイカ
+=== IKA/GESO DA + ワ終助詞 = IKA
+--- input:    イカ娘だわい
+--- expected: イカ娘じゃなイカ
+=== IKA/GESO DA + ワ終助詞 = IKA
+--- input:    イカ娘だわね
+--- expected: イカ娘じゃなイカ
+
+
 === IKA: userdic (+ IKA replace)
 --- input:    イカ娘だろうか。
 --- expected: イカ娘じゃなイカ。
@@ -110,19 +167,15 @@ __DATA__
 --- expected: そうじゃなイカと。
 
 
-=== IKA/GESO: postp KA 名詞+
+=== IKA/GESO: inflection 名詞+
 --- input:    お店か
 --- expected: お店じゃなイカ
-=== IKA/GESO: postp KA 副詞+
+=== IKA/GESO: inflection 副詞+
 --- input:    まだか
 --- expected: まだでゲソか
-=== IKA/GESO: postp KA 動詞+
---- input:    走るか？
---- expected: 走るかでゲソ？
-=== IKA/GESO: postp KA 動詞+
+=== IKA/GESO: inflection 動詞+
 --- input:    走るか？
 --- expected: 走らなイカ？
---- SKIP
 
 
 === IKA: inflection 五段
@@ -226,23 +279,73 @@ __DATA__
 === IKA: inflection ましょうよ
 --- input:    しましょうよ！
 --- expected: しなイカ！
+=== IKA: inflection ますか
+--- input:    しますか！
+--- expected: しなイカ！
 
 
-=== GESO: eos
+=== GESO: eos EOS
+--- input:    わかった
+--- expected: わかったでゲソ
+=== GESO: eos + 記号（一般）
+--- input:    なんと？　ああ　びっくり！
+--- expected: なんとでゲソ？　ああでゲソ　びっくりでゲソ！
+=== GESO: eos + 記号（句点）
 --- input:    わかった。
 --- expected: わかったでゲソ。
-=== GESO: eos
---- input:    わかったでゲソ。
---- expected: わかったでゲソ。
-=== GESO: eos
---- input:    いいじゃなイカ。
---- expected: いいじゃなイカ。
-=== GESO: eos
+=== GESO: eos + 記号（括弧閉）
+--- input:    （ふむふむ）
+--- expected: （ふむふむでゲソ）
+=== GESO: eos + 記号 no-op
 --- input:    今日は、いい天気。
 --- expected: 今日は、いい天気でゲソ。
-=== GESO: eos
---- input:    なんと？　あああ　びっくり！
---- expected: なんとでゲソ？　あああ　びっくりでゲソ！
+
+=== GESO: eos GESO/IKA no-op
+--- input:    わかったでゲソ。
+--- expected: わかったでゲソ。
+=== GESO: eos GESO+IKA no-op
+--- input:    いいじゃなイカ。
+--- expected: いいじゃなイカ。
+
+=== GESO: eos is その他 no-op
+--- input:    かんたァ
+--- expected: かんたァ
+=== GESO: eos is フィラー
+--- input:    えーっと
+--- expected: えーっとでゲソ
+=== GESO: eos is 感動詞
+--- input:    へぇ
+--- expected: へぇでゲソ
+=== GESO: eos is 形容詞
+--- input:    おかしい
+--- expected: おかしいでゲソ
+=== GESO: eos is 助詞 no-op
+--- input:    人類へ
+--- expected: 人類へ
+=== GESO: eos is 助動詞
+--- input:    そうすべし
+--- expected: そうすべしでゲソ
+=== GESO: eos is 接続詞 no-op
+--- input:    すると
+--- expected: すると
+=== GESO: eos is 接続詞 で no-op
+--- input:    で
+--- expected: で
+=== GESO: eos is 接頭詞 no-op
+--- input:    全。
+--- expected: 全。
+=== GESO: eos is 動詞
+--- input:    泳ぐ
+--- expected: 泳ぐでゲソ
+=== GESO: eos is 副詞
+--- input:    ひょっこり
+--- expected: ひょっこりでゲソ
+=== GESO: eos is 名詞
+--- input:    海
+--- expected: 海でゲソ
+=== GESO: eos is 連体詞 no-op
+--- input:    恐るべき、
+--- expected: 恐るべき、
 
 
 === EBI: accent
@@ -254,6 +357,10 @@ __DATA__
 === EBI: accent
 --- input: 今日はエビフライ
 --- match: 今日はエビ.+フライ
+=== EBI: accent
+--- reportby: http://twitter.com/Yuichirou/status/13872045712482306
+--- input: 名古屋と言えばエビフリャー
+--- match: 名古屋と言えばエビ.+フリャー
 
 
 === formal MASU to casual 五段

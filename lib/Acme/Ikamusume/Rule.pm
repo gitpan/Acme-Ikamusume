@@ -23,6 +23,8 @@ use constant LAST => undef; # ditto
 use constant CURR => -1;    # for array accessor
 use constant PREV => -2;    # ditto
 
+our @EBI_ACCENT = qw(！！   ！   ♪ ♪   ♪♪);
+
 sub rules {
     
 #     # debug
@@ -46,10 +48,22 @@ sub rules {
     'node.has_extra' => sub {
         my ($self, $node, $words) = @_;
         if (($node->features->{extra}[1] || "") eq 'inflection') {
-            if ($node->prev->features->{inflect} =~ /五段/) {
-                $words->[PREV] = _inflect_5step($words->[PREV], 'i' => 'a');
+            if ($node->prev->features->{pos} eq '名詞') {
+                $words->[CURR] = 'じゃなイカ';
+            }
+            elsif ($node->prev->features->{pos} eq '副詞') {
+                $words->[CURR] = 'でゲソか';
+            }
+            elsif ($node->prev->features->{pos} eq '助動詞' and
+                   $node->prev->surface eq 'です') {
+                $words->[PREV] = 'じゃなイ';
+                $words->[CURR] = 'カ';
+            }
+            elsif ($node->prev->features->{inflect} =~ /五段/) {
+                $words->[PREV] = _inflect_5step($words->[PREV], '.' => 'a');
                 $words->[CURR] = 'なイカ';
-            } elsif ($node->prev->features->{inflect} =~ /一段|カ変|サ変/) {
+            }
+            elsif ($node->prev->features->{inflect} =~ /一段|カ変|サ変/) {
                 $words->[CURR] = 'なイカ';
             }
         }
@@ -66,10 +80,12 @@ sub rules {
         }
         NEXT;
     },
-
+    
     # IKA: replace
     'node.readable' => sub {
         my ($self, $node, $words) = @_;
+        return NEXT if $words->[CURR] =~ /イカ/;
+        
         my $curr = katakana2hiragana($node->features->{yomi});
         my $next = katakana2hiragana($node->next->features->{yomi} || "");
         my $prev = katakana2hiragana($node->prev->features->{yomi} || "");
@@ -81,16 +97,33 @@ sub rules {
         NEXT;
     },
     
-    # IKA/GESO: postp KA
+    # IKA/GESO: DA + postp
     'node.readable' => sub {
         my ($self, $node, $words) = @_;
-        if ($words->[CURR] eq 'か' and $node->features->{category1} =~ /終助詞/) {
-            if ($node->prev->features->{pos} eq '名詞') {
-                $words->[CURR] = 'じゃなイカ';
+        if ($node->prev->surface eq 'だ' and
+            $words->[PREV] eq 'でゲソ' and
+            (
+                $node->features->{pos} =~ /助詞|助動詞/ or
+                $node->features->{category1} eq '接尾'
+            )
+        ) {
+            my $kana = Lingua::JA::Kana::kana2romaji($words->[CURR]);
+            
+            if ($kana =~/^(?:ze|n[aeo]|yo|wa)/) {
+                $words->[CURR] = '';
+                $words->[PREV] = 'じゃなイカ';
             }
-            if ($node->prev->features->{pos} eq '副詞') {
-                $words->[CURR] = 'でゲソか';
+            if ($kana =~ /^zo/) {
+                $words->[CURR] = '';
             }
+        }
+        NEXT;
+    },
+    'node.readable' => sub {
+        my ($self, $node, $words) = @_;
+        if ($node->features->{category1} eq '終助詞' and
+            join("", @$words) =~ /(?:でゲソ|じゃなイカ)[よなね]$/) {
+            $words->[CURR] = '';
         }
         NEXT;
     },
@@ -98,20 +131,24 @@ sub rules {
     # GESO: eos
     'node.readable' => sub {
         my ($self, $node, $words) = @_;
-        if ($node->next->features->{pos} eq '記号' and
-            $node->next->features->{category1} =~ /一般|句点/) {
-            return if join('', @$words) =~ /(?:ゲソ|イカ).{0,5}$/;
-            push @$words, 'でゲソ';
+        if ($node->next->stat == 3 or # MECAB_EOS_NODE
+            (
+                $node->next->features->{pos} eq '記号' and
+                $node->next->features->{category1} =~ /一般|句点|括弧閉/
+            )
+        ) {
+            return NEXT if $node->features->{pos} =~ /^(?:その他|記号|助詞|接頭詞|接続詞|連体詞)/;
+            return NEXT if join('', @$words) =~ /(?:ゲソ|イカ)$/;
+            $words->[CURR] .= 'でゲソ';
         }
         NEXT;
     },
     
     # EBI: accent
-    'node.readable' => sub {
+    'node' => sub {
         my ($self, $node, $words) = @_;
-        $words->[CURR] =~ s{^(.*エビ|えび|海老)(.*)$}{
-            my @accent = qw(! !! ！！  ！  ♪ ♪ ♪♪);
-            join ("", $1, do { $accent[ int rand scalar @accent ] }, $2);
+        $words->[CURR] =~ s{(エビ|えび|海老)}{
+            $1 . $EBI_ACCENT[ int rand scalar @EBI_ACCENT ];
         }e;
         NEXT;
     },
