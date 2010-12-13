@@ -15,7 +15,7 @@ run {
     my $block = shift;
     
     my $output = Acme::Ikamusume->geso($block->input);
-    my $title = $block->name ."\n       input:  ". $block->input;
+    my $title = $block->name ." input: ". $block->input;
     
     if ($block->match) {
         like($output, $block->match, $title);
@@ -26,8 +26,8 @@ run {
 
 __DATA__
 === SYNOPSIS
---- input:    イカ娘です。perlで侵略しませんか？
---- expected: イカ娘でゲソ。perlで侵略しなイカ？
+--- input:    イカ娘です。あなたもperlで侵略しませんか？
+--- expected: イカ娘でゲソ。お主もperlで侵略しなイカ？
 
 
 === IKA: replace
@@ -54,6 +54,17 @@ __DATA__
 === IKA: replace
 --- input:    侵略しないかと
 --- expected: 侵略しなイカと
+=== IKA: replace
+--- input:    徘徊完了
+--- expected: はイカイカんりょうでゲソ
+
+
+=== GESO: replace
+--- input:    そうでげそ
+--- expected: そうでゲソ
+=== GESO: replace
+--- input:    凧揚げ僧侶
+--- expected: 凧あゲソうりょでゲソ
 
 
 === GESO: userdic
@@ -380,6 +391,23 @@ __DATA__
 --- expected: するでゲソ。
 
 
+=== no honorific
+--- input:    栄子ちゃんです
+--- expected: 栄子でゲソ
+=== no honorific
+--- input:    たけるくんです
+--- expected: たけるでゲソ
+=== no honorific
+--- input:    千鶴さんです
+--- expected: 千鶴でゲソ
+=== no honorific / unknown
+--- input:    Cindyさんです
+--- expected: Cindyでゲソ
+=== no honorific / myself
+--- input:    イカ娘様と呼びませんか
+--- expected: イカ娘様と呼ばなイカ
+
+
 === userdic: お主
 --- input:    あなたは
 --- expected: お主は
@@ -407,3 +435,9 @@ __DATA__
 === userdic: お主
 --- input:    きみは
 --- expected: お主は
+
+=== GESO: interjection
+--- input:    あはははは
+--- expected: ゲソソソ
+--- SKIP
+

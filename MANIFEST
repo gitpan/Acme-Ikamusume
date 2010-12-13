@@ -31,6 +31,7 @@ README
 share/ika.dic
 t/00_compile.t
 t/01_geso.t
+t/02_parser.t
 xt/perlcritic.t
 xt/perlcriticrc
 xt/pod.t
