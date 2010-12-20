@@ -57,6 +57,29 @@ __DATA__
 === IKA: replace
 --- input:    徘徊完了
 --- expected: はイカイカんりょうでゲソ
+=== IKA: replace
+--- input:    いい感じ無敵にススメ
+--- expected: イーカんじ無敵にススメ
+=== IKA: replace
+--- input:    いー感じ無敵にススメ
+--- expected: イーカんじ無敵にススメ
+=== IKA: replace
+--- input:    言い方
+--- expected: イーカたでゲソ
+=== IKA: replace
+--- input:    いいか
+--- expected: いイカ
+
+
+=== IKA: IIKA
+--- input:    いいか？
+--- expected: いイカ？
+=== IKA: IIKA
+--- input:    いいですか？
+--- expected: いイカ？
+=== IKA: IIKA
+--- input:    いいでしょうか？
+--- expected: いイカ？
 
 
 === GESO: replace
@@ -73,9 +96,6 @@ __DATA__
 === GESO: userdic
 --- input:    イカ娘ですから、
 --- expected: イカ娘でゲソから、
-=== IKA: userdic
---- input:    イカ娘ですか？
---- expected: イカ娘じゃなイカ？
 === IKA: userdic
 --- input:    イカ娘ですね。
 --- expected: イカ娘じゃなイカ。
@@ -169,7 +189,7 @@ __DATA__
 --- expected: イカ娘でゲソが、
 === GESO: userdic
 --- input:    イカ娘で、あるが、
---- expected: イカ娘で、あるが、
+--- expected: イカ娘で、あるでゲソが、
 === IKA: userdic
 --- input:    そうかな。
 --- expected: そうじゃなイカ。
@@ -184,9 +204,15 @@ __DATA__
 === IKA/GESO: inflection 副詞+
 --- input:    まだか
 --- expected: まだでゲソか
-=== IKA/GESO: inflection 動詞+
+=== IKA/GESO: inflection 動詞（基本形）+
 --- input:    走るか？
+--- expected: 走るでゲソか？
+=== IKA/GESO: inflection 動詞（その他）+
+--- input:    走りませんか？
 --- expected: 走らなイカ？
+=== IKA/GESO: inflection です +
+--- input:    イカ娘ですか？
+--- expected: イカ娘じゃなイカ？
 
 
 === IKA: inflection 五段
@@ -290,23 +316,31 @@ __DATA__
 === IKA: inflection ましょうよ
 --- input:    しましょうよ！
 --- expected: しなイカ！
-=== IKA: inflection ますか
---- input:    しますか！
---- expected: しなイカ！
 
 
 === GESO: eos EOS
 --- input:    わかった
 --- expected: わかったでゲソ
-=== GESO: eos + 記号（一般）
---- input:    なんと？　ああ　びっくり！
---- expected: なんとでゲソ？　ああでゲソ　びっくりでゲソ！
+
 === GESO: eos + 記号（句点）
 --- input:    わかった。
 --- expected: わかったでゲソ。
 === GESO: eos + 記号（括弧閉）
 --- input:    （ふむふむ）
 --- expected: （ふむふむでゲソ）
+=== GESO: eos + 記号（一般GESO可）
+--- input:    なんと？　ああ　びっくり！
+--- expected: なんとでゲソ？　ああでゲソ　びっくりでゲソ！
+=== GESO: eos + 記号（一般GESO可）
+--- input:    ふむふむ…ふむふむ‥ふむふむ～
+--- expected: ふむふむでゲソ…ふむふむでゲソ‥ふむふむでゲソ～
+=== GESO: eos + 記号（一般GESO可）
+--- input:    キャー☆　キャー★
+--- expected: キャーでゲソ☆　キャーでゲソ★
+=== GESO: eos + 記号 その他 no-op
+--- input:    シンディー・ハリス※クラーク→マーティン＆
+--- expected: シンディー・ハリス※クラーク→マーティン＆
+
 === GESO: eos + 記号 no-op
 --- input:    今日は、いい天気。
 --- expected: 今日は、いい天気でゲソ。
@@ -336,6 +370,9 @@ __DATA__
 === GESO: eos is 助動詞
 --- input:    そうすべし
 --- expected: そうすべしでゲソ
+=== GESO: eos is GESO/IKA + 助動詞
+--- input:    ゲソね
+--- expected: ゲソね
 === GESO: eos is 接続詞 no-op
 --- input:    すると
 --- expected: すると
@@ -359,6 +396,19 @@ __DATA__
 --- expected: 恐るべき、
 
 
+=== IKA: eos NAI
+--- input:    そうじゃない
+--- expected: そうじゃなイカ
+=== IKA: eos NAI
+--- input:    いいんじゃない？
+--- expected: いいんじゃなイカ？
+
+
+=== HTML tweak
+--- input:    <p>君に届け</p>
+--- expected: <p>お主に届けでゲソ</p>
+
+
 === EBI: accent
 --- input: 海老蔵が入院した
 --- match: 海老.+蔵が入院した
@@ -374,21 +424,78 @@ __DATA__
 --- match: 名古屋と言えばエビ.+フリャー
 
 
-=== formal MASU to casual 五段
+=== formal MASU 基本形 to casual 五段
 --- input:    今やります。
 --- expected: 今やるでゲソ。
-=== formal MASU to casual 上一段
+=== formal MASU 基本形 to casual 五段 + 助詞 / GESO eos
+--- input:    言いますか。
+--- expected: 言うでゲソか。
+=== formal MASU 基本形 to casual 上一段
 --- input:    います。
 --- expected: いるでゲソ。
-=== formal MASU to casual 下一段
+=== formal MASU 基本形 to casual 上一段 + 助詞 / GESO eos
+--- input:    いますか。
+--- expected: いるでゲソか。
+=== formal MASU 基本形 to casual 下一段
 --- input:    見えます。
 --- expected: 見えるでゲソ。
-=== formal MASU to casual カ変
+=== formal MASU 基本形 to casual 下一段 + 助詞 / GESO eos
+--- input:    見えますか。
+--- expected: 見えるでゲソか。
+=== formal MASU 基本形 to casual カ変
 --- input:    来ます。
 --- expected: 来るでゲソ。
-=== formal MASU to casual サ変
+=== formal MASU 基本形 to casual カ変 + 助詞 / GESO eos
+--- input:    来ますか。
+--- expected: 来るでゲソか。
+=== formal MASU 基本形 to casual サ変
 --- input:    します。
 --- expected: するでゲソ。
+=== formal MASU 基本形 to casual サ変 + 助詞 / GESO eos
+--- input:    しますか。
+--- expected: するでゲソか。
+
+=== formal MASU 連用形 to casual 五段
+--- input:    書きました。
+--- expected: 書いたでゲソ。
+--- SKIP
+=== formal MASU 連用形 to casual 五段
+--- input:    やりました。
+--- expected: やったでゲソ。
+--- SKIP
+=== formal MASU 連用形 to casual 下一
+--- input:    受けました。
+--- expected: 受けたでゲソ。
+=== formal MASU 連用形 to casual 上一
+--- input:    起きました。
+--- expected: 起きたでゲソ。
+=== formal MASU 連用形 to casual カ変
+--- input:    来ました。
+--- expected: 来たでゲソ。
+=== formal MASU 連用形 to casual サ変
+--- input:    しました。
+--- expected: したでゲソ。
+
+
+=== formal to casual userdic
+--- input:    そうでした。
+--- expected: そうだったでゲソ。
+
+
+=== IKA: IKAN
+--- input:    いけないでしょ
+--- expected: イカんでしょ
+=== IKA: IKAN
+--- input:    それはいけないですね
+--- expected: それはイカんじゃなイカ
+=== IKA: IKAN
+--- input:    それはいけませんね
+--- expected: それはイカんね
+
+
+=== rephrase simply
+--- input:    それはありません。
+--- expected: それはないでゲソ。
 
 
 === no honorific

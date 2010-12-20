@@ -23,17 +23,9 @@ use constant LAST => undef; # ditto
 use constant CURR => -1;    # for array accessor
 use constant PREV => -2;    # ditto
 
-our @EBI_ACCENT = qw(！！   ！   ♪ ♪   ♪♪);
+our @EBI_ACCENT = qw(！ ♪ ♪ ♫ ♬ ♡);
 
 sub rules {
-    
-#     # debug
-#     'node' => sub {
-#         my ($self, $node, $words) = @_;
-#         return NEXT unless $ENV{DEBUG};
-#         use YAML;
-#         warn Dump [ $node->surface, $node->features ];
-#     },
     
     # use userdic extra field
     'node.has_extra' => sub {
@@ -55,11 +47,16 @@ sub rules {
                 $words->[CURR] = 'でゲソか';
             }
             elsif ($node->prev->features->{pos} eq '助動詞' and
-                   $node->prev->surface eq 'です') {
+                   $node->prev->surface eq 'です' and
+                   $words->[PREV - 1] !~ /^[いイ]{2}$/) {
                 $words->[PREV] = 'じゃなイ';
                 $words->[CURR] = 'カ';
             }
-            elsif ($node->prev->features->{inflect} =~ /五段/) {
+            
+            if ($words->[PREV] =~ /(?:イー?カ|ゲソ)$/) {
+                return NEXT;
+            }
+            if ($node->prev->features->{inflect} =~ /五段/) {
                 $words->[PREV] = _inflect_5step($words->[PREV], '.' => 'a');
                 $words->[CURR] = 'なイカ';
             }
@@ -73,9 +70,21 @@ sub rules {
     # formal MASU to casual
     'node.readable' => sub {
         my ($self, $node, $words) = @_;
-        if ($words->[CURR] eq 'ます' and $node->features->{pos} eq '助動詞' and
-            $node->prev->features->{pos} eq '動詞') {
+        unless ($node->features->{original} eq 'ます' and
+                $node->features->{pos} eq '助動詞' and
+                $node->prev->features->{pos} eq '動詞') {
+            return NEXT;
+        }
+        if ($node->features->{inflect_type} eq '基本形') { # ます
             $words->[PREV] = $node->prev->features->{original};
+            $words->[CURR] = '';
+
+            if ($node->next->features->{pos} =~ /^助詞/) {
+                $words->[CURR] .= 'でゲソ';
+            }
+        }
+        if ($node->features->{inflect_type} eq '連用形' and # ます
+            $node->features->{category3} !~ /五段/) { # 五段 => { -i/っ/ん/い }
             $words->[CURR] = '';
         }
         NEXT;
@@ -94,22 +103,28 @@ sub rules {
     # IKA/GESO: replace
     'node.readable' => sub {
         my ($self, $node, $words) = @_;
+        $words->[CURR] =~ s/い[いー]か(.)/イーカ$1/g;
         $words->[CURR] =~ s/いか/イカ/g;
         $words->[CURR] =~ s/げそ/ゲソ/g;
         
-        return NEXT if $words->[CURR] =~ /イカ|ゲソ/;
+        return NEXT if $words->[CURR] =~ /イー?カ|ゲソ/;
         
         my $curr = katakana2hiragana($node->features->{yomi});
         my $next = katakana2hiragana($node->next->features->{yomi} || "");
         my $prev = katakana2hiragana($node->prev->features->{yomi} || "");
-        
+       
+        $words->[CURR] = $curr if $curr =~ s/い[いー]か(.)/イーカ$1/g;
         $words->[CURR] = $curr if $curr =~ s/いか/イカ/g;
         $words->[CURR] = $curr if $curr =~ s/げそ/ゲソ/g;
         
-        $words->[CURR] = $curr if $curr =~ s/い$/イ/ && $next =~ /^か/;
-        $words->[CURR] = $curr if $prev =~ /い$/ && $curr =~ s/^か/カ/;
+        $words->[CURR] = $curr if $next =~ /^か./ && $curr =~ s/い[いー]$/イー/;
+        $words->[CURR] = $curr if $prev =~ /い[いー]$/ && $curr =~ s/^か(.)/カ$1/;
         
-        $words->[CURR] = $curr if $curr =~ s/げ$/ゲ/ && $next =~ /^そ/;
+        $words->[CURR] = $curr if join('', @$words[0 .. @$words - 2]) =~ /[いイ]$/
+                                    && $curr =~ s/^か/カ/;
+        $words->[CURR] = $curr if $next =~ /^か/ && $curr =~ s/い$/イ/;
+
+        $words->[CURR] = $curr if $next =~ /^そ/ && $curr =~ s/げ$/ゲ/;
         $words->[CURR] = $curr if $prev =~ /げ$/ && $curr =~ s/^そ/ソ/;
         
         NEXT;
@@ -146,19 +161,61 @@ sub rules {
         NEXT;
     },
     
-    # GESO: eos
+    # IKA: IIKA
+    'node.readable' => sub {
+        my ($self, $node, $words) = @_;
+        if (not $words->[PREV] or $words->[PREV] !~ /^(?:[いイ]{2})$/) {
+            return NEXT;
+        }
+        if ($node->surface =~ /^(?:です|でしょう)$/ and
+            $node->next->surface =~ /^か/) {
+            $words->[PREV] = 'いイ';
+            $words->[CURR] = '';
+        }
+        if ($node->surface eq 'でしょうか') {
+            $words->[PREV] = 'いイ';
+            $words->[CURR] = 'カ';
+        }
+        NEXT;
+    },
+    
+    # GESO/IKA: eos
     'node.readable' => sub {
         my ($self, $node, $words) = @_;
         if ($node->next->stat == 3 or # MECAB_EOS_NODE
             (
                 $node->next->features->{pos} eq '記号' and
-                $node->next->features->{category1} =~ /一般|句点|括弧閉/
+                $node->next->features->{category1} =~ /句点|括弧閉|GESO可/
             )
         ) {
-            return NEXT if $node->features->{pos} =~ /^(?:その他|記号|助詞|接頭詞|接続詞|連体詞)/;
-            return NEXT if join('', @$words) =~ /(?:ゲソ|イカ)$/;
+            if ($node->features->{pos} =~ /^(?:その他|記号|助詞|接頭詞|接続詞|連体詞)/) {
+                return NEXT;
+            }
+            
+            if ($node->features->{pos} eq '助動詞' and
+                $words->[PREV] eq 'じゃ' and
+                $node->surface eq 'ない') {
+                $words->[CURR] = 'なイカ';
+                return NEXT;
+            }
+            
+            if ($node->features->{pos} =~ /^助動詞/ and
+                $words->[PREV] =~ /(?:ゲソ|イー?カ)/) {
+                return NEXT;
+            }
+            if (join('', @$words) =~ /(?:ゲソ|イー?カ)$/) {
+                return NEXT;
+            }
+            
             $words->[CURR] .= 'でゲソ';
         }
+        
+        if ($node->features->{pos} eq '動詞' and
+            $node->features->{inflect_type} =~ '基本形' and
+            $node->next->features->{pos} =~ /^助詞/) {
+            $words->[CURR] .= 'でゲソ';
+        }
+
         NEXT;
     },
     
@@ -170,7 +227,7 @@ sub rules {
         }e;
         NEXT;
     },
-
+    
 }
 
 sub _inflect_5step {
