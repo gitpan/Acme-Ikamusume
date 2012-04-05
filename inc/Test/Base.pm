@@ -15,7 +15,6 @@ BEGIN {
         eq_array eq_hash eq_set
         plan can_ok isa_ok diag
         use_ok
-        done_testing
         $TODO
     );
 }
@@ -682,4 +681,4 @@ __DATA__
 
 =encoding utf8
 
-#line 1377
+#line 1376
